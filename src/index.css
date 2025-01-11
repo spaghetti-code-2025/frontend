@@ -26,6 +26,18 @@
   font-family: "Pretendard Variable";
 }
 
+@font-face {
+  font-family: "Gangwon";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEduPowerExtraBoldA.woff")
+    format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.gangwon {
+  font-family: "Gangwon";
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

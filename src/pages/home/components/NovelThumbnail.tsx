@@ -1,4 +1,8 @@
-import { CurrencyDollarIcon, UserIcon } from "@heroicons/react/20/solid";
+import {
+  AcademicCapIcon,
+  CurrencyDollarIcon,
+  UserIcon,
+} from "@heroicons/react/20/solid";
 import { MOCK_THUMBNAIL_BASE_PATH, Novel } from "src/mocks/novels/novels";
 
 interface NovelThumbnailProps
@@ -19,10 +23,16 @@ const NovelThumbnail = (novel: NovelThumbnailProps) => {
       className="text-left flex flex-col min-h-[450px] w-full rounded-lg overflow-hidden border-[0.5px] border-[#E1E1E1]"
       key={novel.id}
     >
-      <img
-        src={`${MOCK_THUMBNAIL_BASE_PATH}/${novel.thumbnail_320}`}
-        className="w-full"
-      />
+      {novel.thumbnail_320 ? (
+        <img
+          src={`${MOCK_THUMBNAIL_BASE_PATH}/${novel.thumbnail_320}`}
+          className="w-full"
+        />
+      ) : (
+        <div className="w-full h-[183.2px] bg-neutral-200 flex justify-center items-center">
+          <AcademicCapIcon className="size-16 text-white" />
+        </div>
+      )}
 
       <div className="flex flex-col px-3 pt-3 pb-4 w-full justify-between grow">
         <div>

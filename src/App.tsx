@@ -8,6 +8,7 @@ import {
 import Layout from "./layout/Layout";
 import EditorPage from "./pages/editor";
 import HomePage from "./pages/home";
+import ReviewPage from "./pages/review";
 import SubmitContent from "./pages/submitContent";
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         </Route>
         <Route element={<EditorPage />} path="/editor" />
         <Route element={<SubmitContent />} path="/submitContent" />
+        <Route element={<ReviewPage />} path="/review" />
       </>,
     ),
   );
