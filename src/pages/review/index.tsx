@@ -11,11 +11,6 @@ const ReviewPage = () => {
           <div className="p-4 border-[1px] border-neutral-200 w-full rounded-lg">
             <div className="flex w-full justify-between items-center">
               <div className="text-xl font-bold">무명 식객</div>
-
-              <div className="flex items-center gap-2">
-                <div className="size-3 rounded-full bg-yellow" />
-                <div className="text-sm text-grey">#23k2j3fhkj</div>
-              </div>
             </div>
 
             <div className="flex gap-2 my-1">
