@@ -1,4 +1,6 @@
+import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Network } from "aptos";
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -30,9 +32,21 @@ function App() {
 
   return (
     <>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
+      <AptosWalletAdapterProvider
+        autoConnect={true}
+        optInWallets={["Petra"]}
+        dappConfig={{
+          network: Network.MAINNET,
+          aptosApiKey: import.meta.env.VITE_NODIT_API_KEY,
+        }}
+        onError={(error) => {
+          console.log("error", error);
+        }}
+      >
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </AptosWalletAdapterProvider>
     </>
   );
 }

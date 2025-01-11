@@ -1,6 +1,4 @@
-import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
 import { AcademicCapIcon } from "@heroicons/react/20/solid";
-import { Network } from "aptos";
 import { Link } from "react-router-dom";
 
 import { WalletSelector } from "@/components/nodit/WalletSelector";
@@ -23,19 +21,7 @@ const Header = () => {
           <Button variant="link">번역 검수하기</Button>
         </Link>
 
-        <AptosWalletAdapterProvider
-          autoConnect={true}
-          optInWallets={["Petra"]}
-          dappConfig={{
-            network: Network.MAINNET,
-            aptosApiKey: import.meta.env.VITE_NODIT_API_KEY,
-          }}
-          onError={(error) => {
-            console.log("error", error);
-          }}
-        >
-          <WalletSelector />
-        </AptosWalletAdapterProvider>
+        <WalletSelector />
       </div>
     </header>
   );
