@@ -1,3 +1,7 @@
+import {
+  InputTransactionData,
+  useWallet,
+} from "@aptos-labs/wallet-adapter-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -13,6 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const SubmitContent = () => {
+  const { signAndSubmitTransaction, account, connected } = useWallet();
+
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -26,6 +32,45 @@ const SubmitContent = () => {
   const [contents, setContents] = useState([
     { content: "", start_index: 0, end_index: 0 },
   ]);
+
+  const handleCreateTranslationRequest = async (
+    requestId: string,
+    reviewerAccountId: string,
+    contentHash: string,
+    totalPrice: number,
+    contentLength: number,
+  ) => {
+    if (!connected || !account) {
+      alert("지갑을 먼저 연결해주세요!");
+      return;
+    }
+
+    const payload: InputTransactionData = {
+      data: {
+        function:
+          "67a5c0efdea05102041bb5b2bb8d52f271742baa4b6f15aee1a1d048010890f1::translation_request::create_translation_request",
+        typeArguments: [],
+        functionArguments: [
+          requestId,
+          reviewerAccountId,
+          contentHash,
+          totalPrice.toString(),
+          contentLength.toString(),
+        ],
+      },
+    };
+
+    try {
+      if (!signAndSubmitTransaction) {
+        throw new Error("Wallet is not connected");
+      }
+      const txnHash = await signAndSubmitTransaction(payload);
+      console.log("Transaction hash:", txnHash);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -104,6 +149,19 @@ const SubmitContent = () => {
         });
 
         setContents([{ content: "", start_index: 0, end_index: 0 }]);
+
+        try {
+          await handleCreateTranslationRequest(
+            body.id.toString(),
+            formData.reviewer_address,
+            body.hash,
+            price,
+            totalLength,
+          );
+          console.log("Translation request created successfully");
+        } catch (error) {
+          console.error("Failed to create translation request:", error);
+        }
       } else {
         alert("의뢰 요청이 실패했어요 😞");
       }
@@ -117,6 +175,11 @@ const SubmitContent = () => {
       <Card className="w-[450px]">
         <CardHeader>
           <CardTitle className="text-xl">번역 의뢰하기</CardTitle>
+          {!connected && (
+            <div className="mt-2 text-sm text-red-500">
+              지갑 연결이 필요합니다
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>

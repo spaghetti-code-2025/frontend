@@ -37,6 +37,7 @@ import {
 
 export function WalletSelector(walletSortingOptions: WalletSortingOptions) {
   const { account, connected, disconnect, wallet } = useWallet();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const closeDialog = useCallback(() => setIsDialogOpen(false), []);
