@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,8 +11,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
-import { Account, Aptos, AptosConfig } from "@aptos-labs/ts-sdk";
 
 const SubmitContent = () => {
   const [formData, setFormData] = useState({
@@ -62,18 +61,18 @@ const SubmitContent = () => {
     let currentIndex = 0;
 
     contents.forEach((content) => {
-      currentIndex += content.content.length;
+      currentIndex += content.content.trim().length;
       separator.push(currentIndex - 1);
     });
 
     const totalLength = contents.reduce(
-      (sum, content) => sum + content.content.length,
+      (sum, content) => sum + content.content.trim().length,
       0,
     );
 
     const payload = {
       ...formData,
-      content: contents.map((item) => item.content).join(" "),
+      content: contents.map((item) => item.content.trim()).join(""),
       separator,
       length: totalLength,
       price: price,

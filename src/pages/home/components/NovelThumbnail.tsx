@@ -1,8 +1,4 @@
-import {
-  AcademicCapIcon,
-  CurrencyDollarIcon,
-  UserIcon,
-} from "@heroicons/react/20/solid";
+import { AcademicCapIcon, CurrencyDollarIcon } from "@heroicons/react/20/solid";
 import { MOCK_THUMBNAIL_BASE_PATH, Novel } from "src/mocks/novels/novels";
 
 interface NovelThumbnailProps
@@ -13,7 +9,6 @@ interface NovelThumbnailProps
     | "author"
     | "thumbnail_320"
     | "translation_total_progress"
-    | "translation_participant_number"
     | "fee_per_100_chars"
   > {}
 
@@ -41,17 +36,6 @@ const NovelThumbnail = (novel: NovelThumbnailProps) => {
         </div>
 
         <div className="w-full flex flex-col gap-4">
-          <div className="flex items-center text-greyDark">
-            <UserIcon className="size-5 mr-1" />
-            <div className="text-greyDark">
-              <span className="text-sm">
-                {novel.translation_participant_number}명
-              </span>
-              &nbsp;
-              <span className="text-xs">참여</span>
-            </div>
-          </div>
-
           <div>
             <div className="text-grey text-xs mb-1">번역 진행도</div>
 
