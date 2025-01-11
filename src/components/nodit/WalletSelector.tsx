@@ -54,6 +54,8 @@ export function WalletSelector(walletSortingOptions: WalletSortingOptions) {
     localStorage.removeItem("wallet_address");
   }, [disconnect]);
 
+  console.log(account);
+
   return connected ? (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
