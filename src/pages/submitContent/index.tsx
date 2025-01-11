@@ -54,8 +54,8 @@ const SubmitContent = () => {
           requestId,
           reviewerAccountId,
           contentHash,
-          totalPrice.toString(),
-          contentLength.toString(),
+          totalPrice,
+          contentLength,
         ],
       },
     };
