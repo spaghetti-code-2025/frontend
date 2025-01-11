@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { InputTransactionData, useWallet } from "@aptos-labs/wallet-adapter-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,13 +11,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
-import {
-  Account,
-  Aptos,
-  AptosConfig,
-  Ed25519PrivateKey,
-} from "@aptos-labs/ts-sdk";
+
 const SubmitContent = () => {
+  const { signAndSubmitTransaction, account, connected } = useWallet();
+
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -31,6 +28,44 @@ const SubmitContent = () => {
   const [contents, setContents] = useState([
     { content: "", start_index: 0, end_index: 0 },
   ]);
+
+  const handleCreateTranslationRequest = async (
+    requestId: string,
+    reviewerAccountId: string,
+    contentHash: string,
+    totalPrice: number,
+    contentLength: number,
+  ) => {
+    if (!connected || !account) {
+      alert("지갑을 먼저 연결해주세요!");
+      return;
+    }
+
+    const payload: InputTransactionData = {
+      data: {
+        function: "67a5c0efdea05102041bb5b2bb8d52f271742baa4b6f15aee1a1d048010890f1::translation_request::create_translation_request",
+        typeArguments: [],
+        functionArguments: [
+          requestId,
+          reviewerAccountId,
+          contentHash,
+          totalPrice.toString(),
+          contentLength.toString(),
+        ],
+      },
+    };
+
+    try {
+      if (!signAndSubmitTransaction) {
+        throw new Error("Wallet is not connected");
+      }
+      const txnHash = await signAndSubmitTransaction(payload);
+      console.log("Transaction hash:", txnHash);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -110,88 +145,18 @@ const SubmitContent = () => {
 
         setContents([{ content: "", start_index: 0, end_index: 0 }]);
 
-        /*const aptosConfig = new AptosConfig({
-          fullnode:
-            "https://aptos-testnet.nodit.io/efkSOHP1Q3VVs8udkxRi1rrufsXQhuYS/v1",
-          indexer:
-            "https://aptos-testnet.nodit.io/efkSOHP1Q3VVs8udkxRi1rrufsXQhuYS/v1/graphql",
-        });
-        const aptos = new Aptos(aptosConfig);
-
-        async () => {
-          const response = await signAndSubmitTransaction({
-            data: {
-              function:
-                "67a5c0efdea05102041bb5b2bb8d52f271742baa4b6f15aee1a1d048010890f1::translation_request::create_translation_request",
-              typeArguments: [],
-              functionArguments: [
-                body.id.toString(),
-                "0x34f3120c8d5ed1708dcbed4c388148c2fe405d5ba6f1cf7d2f0570518f608f0b",
-                body.hash,
-                body.price,
-                body.length,
-              ],
-            },
-          });
-          // if you want to wait for transaction
-          try {
-            await aptos.waitForTransaction({ transactionHash: response.hash });
-          } catch (error) {
-            console.error(error);
-          }
-        };*/
-
-        const config = new AptosConfig({
-          fullnode:
-            "https://aptos-testnet.nodit.io/efkSOHP1Q3VVs8udkxRi1rrufsXQhuYS/v1",
-          indexer:
-            "https://aptos-testnet.nodit.io/efkSOHP1Q3VVs8udkxRi1rrufsXQhuYS/v1/graphql",
-        });
-        const aptos = new Aptos(config);
-
-        const privateKey =
-          "0x613cfa3dc8f3370bb0a87603b38c2e0197992864af3db98583b6628e1a3df01d";
-        const ed25519Scheme = new Ed25519PrivateKey(privateKey);
-        const ownerAccount = Account.fromPrivateKey({
-          privateKey: ed25519Scheme,
-        });
-
-        (async () => {
-          try {
-            const transaction = await aptos.transaction.build.simple({
-              sender: ownerAccount.accountAddress,
-              data: {
-                function:
-                  "67a5c0efdea05102041bb5b2bb8d52f271742baa4b6f15aee1a1d048010890f1::translation_request::create_translation_request",
-                functionArguments: [
-                  body.id.toString(),
-                  "0x34f3120c8d5ed1708dcbed4c388148c2fe405d5ba6f1cf7d2f0570518f608f0b",
-                  body.hash,
-                  body.price,
-                  body.length,
-                ],
-              },
-            });
-
-            const ownerAuthenticator = aptos.transaction.sign({
-              signer: ownerAccount,
-              transaction,
-            });
-
-            const submitTx = await aptos.transaction.submit.simple({
-              transaction,
-              senderAuthenticator: ownerAuthenticator,
-            });
-
-            const executedTransaction = await aptos.waitForTransaction({
-              transactionHash: submitTx.hash,
-            });
-
-            console.log(executedTransaction);
-          } catch (error) {
-            console.error(error);
-          }
-        })();
+        try {
+          await handleCreateTranslationRequest(
+            body.id.toString(),
+            formData.reviewer_address,
+            body.hash,
+            price,
+            totalLength,
+          );
+          console.log("Translation request created successfully");
+        } catch (error) {
+          console.error("Failed to create translation request:", error);
+        }
       } else {
         alert("의뢰 요청이 실패했어요 😞");
       }
@@ -205,6 +170,11 @@ const SubmitContent = () => {
       <Card className="w-[450px]">
         <CardHeader>
           <CardTitle className="text-xl">번역 의뢰하기</CardTitle>
+          {!connected && (
+            <div className="mt-2 text-sm text-red-500">
+              지갑 연결이 필요합니다
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>

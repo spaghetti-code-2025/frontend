@@ -1,32 +1,25 @@
-import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
-  RouterProvider,
-} from "react-router-dom";
-
-import Layout from "./layout/Layout";
-import EditorPage from "./pages/editor";
-import HomePage from "./pages/home";
-import SubmitContent from "./pages/submitContent";
+import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
+import { Network } from "aptos";
+import { BrowserRouter } from "react-router-dom";
+import Router from "./Router";
 
 function App() {
-  const router = createBrowserRouter(
-    createRoutesFromElements(
-      <>
-        <Route element={<Layout />}>
-          <Route element={<HomePage />} path="/" />
-        </Route>
-        <Route element={<EditorPage />} path="/editor" />
-        <Route element={<SubmitContent />} path="/submitContent" />
-      </>,
-    ),
-  );
-
   return (
-    <>
-      <RouterProvider router={router} />
-    </>
+    <AptosWalletAdapterProvider
+      autoConnect={true}
+      optInWallets={["Petra"]}
+      dappConfig={{
+        network: Network.MAINNET,
+        aptosApiKey: import.meta.env.VITE_NODIT_API_KEY,
+      }}
+      onError={(error) => {
+        console.log("error", error);
+      }}
+    >
+      <BrowserRouter>
+        <Router />
+      </BrowserRouter>
+    </AptosWalletAdapterProvider>
   );
 }
 
