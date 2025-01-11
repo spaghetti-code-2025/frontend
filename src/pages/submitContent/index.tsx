@@ -1,4 +1,9 @@
+import {
+  InputTransactionData,
+  useWallet,
+} from "@aptos-labs/wallet-adapter-react";
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,19 +17,60 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const SubmitContent = () => {
+  const { signAndSubmitTransaction, account, connected } = useWallet();
+
   const [formData, setFormData] = useState({
     title: "",
     author: "",
     intro: "",
     notes: "",
-    price: 0,
+    price: "",
     length: 0,
-    reviewer_id: "",
+    reviewer_address: "",
   });
 
   const [contents, setContents] = useState([
     { content: "", start_index: 0, end_index: 0 },
   ]);
+
+  const handleCreateTranslationRequest = async (
+    requestId: string,
+    reviewerAccountId: string,
+    contentHash: string,
+    totalPrice: number,
+    contentLength: number,
+  ) => {
+    if (!connected || !account) {
+      alert("지갑을 먼저 연결해주세요!");
+      return;
+    }
+
+    const payload: InputTransactionData = {
+      data: {
+        function:
+          "67a5c0efdea05102041bb5b2bb8d52f271742baa4b6f15aee1a1d048010890f1::translation_request::create_translation_request",
+        typeArguments: [],
+        functionArguments: [
+          requestId,
+          reviewerAccountId,
+          contentHash,
+          totalPrice.toString(),
+          contentLength.toString(),
+        ],
+      },
+    };
+
+    try {
+      if (!signAndSubmitTransaction) {
+        throw new Error("Wallet is not connected");
+      }
+      const txnHash = await signAndSubmitTransaction(payload);
+      console.log("Transaction hash:", txnHash);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -50,20 +96,35 @@ const SubmitContent = () => {
     ]);
   };
 
-  const removeContentField = (index: number) => {
-    setContents((prev) => prev.filter((_, i) => i !== index));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const price = parseFloat(formData.price);
+
+    const separator: number[] = [];
+
+    let currentIndex = 0;
+
+    contents.forEach((content) => {
+      currentIndex += content.content.trim().length;
+      separator.push(currentIndex - 1);
+    });
+
+    const totalLength = contents.reduce(
+      (sum, content) => sum + content.content.trim().length,
+      0,
+    );
+
     const payload = {
       ...formData,
-      contents,
+      content: contents.map((item) => item.content.trim()).join(""),
+      separator,
+      length: totalLength,
+      price: price,
     };
 
     try {
-      const response = await fetch("/api/submit", {
+      const response = await fetch("http://98.80.100.119:3000/novel", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -72,9 +133,37 @@ const SubmitContent = () => {
       });
 
       if (response.ok) {
-        alert("Form submitted successfully!");
+        alert("의뢰 요청이 성공했어요 🙂");
+        const body = await response.json();
+
+        console.log(body);
+
+        setFormData({
+          title: "",
+          author: "",
+          intro: "",
+          notes: "",
+          price: "",
+          length: 0,
+          reviewer_address: "",
+        });
+
+        setContents([{ content: "", start_index: 0, end_index: 0 }]);
+
+        try {
+          await handleCreateTranslationRequest(
+            body.id.toString(),
+            formData.reviewer_address,
+            body.hash,
+            price,
+            totalLength,
+          );
+          console.log("Translation request created successfully");
+        } catch (error) {
+          console.error("Failed to create translation request:", error);
+        }
       } else {
-        alert("Failed to submit the form.");
+        alert("의뢰 요청이 실패했어요 😞");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -85,7 +174,12 @@ const SubmitContent = () => {
     <div className="w-full flex justify-center py-10">
       <Card className="w-[450px]">
         <CardHeader>
-          <CardTitle className="text-xl">Register Content</CardTitle>
+          <CardTitle className="text-xl">번역 의뢰하기</CardTitle>
+          {!connected && (
+            <div className="mt-2 text-sm text-red-500">
+              지갑 연결이 필요합니다
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -121,12 +215,12 @@ const SubmitContent = () => {
                 />
               </div>
               <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="reviewer_id">검수자</Label>
+                <Label htmlFor="reviewer_address">검수자 계좌</Label>
                 <Input
-                  id="reviewer_id"
-                  name="reviewer_id"
+                  id="reviewer_address"
+                  name="reviewer_address"
                   placeholder=""
-                  value={formData.reviewer_id}
+                  value={formData.reviewer_address}
                   onChange={handleInputChange}
                 />
               </div>
@@ -140,14 +234,24 @@ const SubmitContent = () => {
                   onChange={handleInputChange}
                 />
               </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="author">의뢰비</Label>
+                <Input
+                  id="price"
+                  name="price"
+                  placeholder=""
+                  value={formData.price}
+                  onChange={handleInputChange}
+                />
+              </div>
               <div className="flex flex-col">
-                <Label className="text-[15px]" htmlFor="reviewer_id">
+                <Label className="text-[14px]" htmlFor="reviewer_id">
                   원문
                 </Label>
                 {contents.map((content, index) => (
                   <div key={index} className="flex">
                     <textarea
-                      className="w-full h-[200px] my-1 border border-gray-200 rounded-lg focus:outline-black focus:outline-1 p-2"
+                      className="w-full h-[200px] text-[14px] my-1 border border-gray-200 rounded-lg focus:outline-black focus:outline-1 p-3"
                       placeholder={`에피소드 ${index + 1}`}
                       value={content.content}
                       onChange={(e) =>
@@ -157,22 +261,19 @@ const SubmitContent = () => {
                   </div>
                 ))}
               </div>
-              <Button
-                variant="outline"
-                onClick={addContentField}
-                type="button"
-                className="mt-2"
-              >
-                + Add Episode
+              <Button variant="outline" onClick={addContentField} type="button">
+                + 에피소드 추가하기
               </Button>
             </div>
           </form>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Button variant="outline" type="button">
-            Cancel
-          </Button>
-          <Button type="submit" onClick={handleSubmit}>
+          <Link to="/" className="no-underline">
+            <Button variant="outline" type="button">
+              Cancel
+            </Button>
+          </Link>
+          <Button className="bg-[#69D200]" type="submit" onClick={handleSubmit}>
             Submit
           </Button>
         </CardFooter>

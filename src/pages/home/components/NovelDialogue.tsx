@@ -1,3 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+
+import { getAllTasks } from "@/api/task";
 import {
   Dialog,
   DialogContent,
@@ -7,10 +11,22 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Novel } from "@/mocks/novels/novels";
+import contentParser from "@/utils/content_parser";
 
 import NovelThumbnail from "./NovelThumbnail";
 
 const NovelDialogue = (novel: Novel) => {
+  const novelContents = contentParser(novel.content, novel.separator);
+
+  const { data: tasksData } = useQuery({
+    queryKey: ["get", "/task"],
+    queryFn: getAllTasks,
+  });
+
+  const thisNovelsTasksData = tasksData
+    ? tasksData.filter((taskData) => taskData.novel_id === novel.id)
+    : undefined;
+
   return (
     <Dialog>
       <DialogTrigger>
@@ -37,16 +53,14 @@ const NovelDialogue = (novel: Novel) => {
           </div>
           <div className="w-[1px] bg-neutral-200 h-full"></div>
           <div className="w-1/2">
-            <EpisodeSelectionButton episodeNumber={1} title="에엑따" />
-            <EpisodeSelectionButton episodeNumber={2} title="에엑따" />
-            <EpisodeSelectionButton episodeNumber={3} title="에엑따" />
-            <EpisodeSelectionButton episodeNumber={4} title="에엑따" />
-            <EpisodeSelectionButton episodeNumber={5} title="에엑따" />
-            <EpisodeSelectionButton episodeNumber={6} title="에엑따" />
-            <EpisodeSelectionButton episodeNumber={7} title="에엑따" />
-            <EpisodeSelectionButton episodeNumber={8} title="에엑따" />
-            <EpisodeSelectionButton episodeNumber={9} title="에엑따" />
-            <EpisodeSelectionButton episodeNumber={10} title="에엑따" />
+            {novelContents.map((content, index) => (
+              <EpisodeSelectionButton
+                key={index}
+                novelId={novel.id}
+                episodeNumber={index + 1}
+                title={content.textThumbnail}
+              />
+            ))}
           </div>
         </div>
       </DialogContent>
@@ -55,22 +69,26 @@ const NovelDialogue = (novel: Novel) => {
 };
 
 interface EpisodeSelectionButtonProps {
+  novelId: number;
   episodeNumber: number;
   title: string;
 }
 
 const EpisodeSelectionButton = ({
+  novelId,
   episodeNumber,
   title,
 }: EpisodeSelectionButtonProps) => {
   return (
-    <button className="flex w-full box-border px-3 py-2 items-center justify-between gap-5 hover:bg-slate-100 transition rounded-md">
-      <div className="text-lg">
-        <span className="font-semibold">{episodeNumber}화.</span> {title}
-      </div>
+    <Link to={`/editor?novelId=${novelId}&episodeNumber=${episodeNumber}`}>
+      <button className="flex w-full box-border px-3 py-4 items-center justify-between gap-5 hover:bg-slate-100 transition rounded-md">
+        <div>
+          <span className="font-semibold">{episodeNumber}화.</span> {title}
+        </div>
 
-      <div>완료</div>
-    </button>
+        <div>완료</div>
+      </button>
+    </Link>
   );
 };
 

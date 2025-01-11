@@ -1,4 +1,4 @@
-import { CurrencyDollarIcon, UserIcon } from "@heroicons/react/20/solid";
+import { AcademicCapIcon, CurrencyDollarIcon } from "@heroicons/react/20/solid";
 import { MOCK_THUMBNAIL_BASE_PATH, Novel } from "src/mocks/novels/novels";
 
 interface NovelThumbnailProps
@@ -9,7 +9,6 @@ interface NovelThumbnailProps
     | "author"
     | "thumbnail_320"
     | "translation_total_progress"
-    | "translation_participant_number"
     | "fee_per_100_chars"
   > {}
 
@@ -19,10 +18,16 @@ const NovelThumbnail = (novel: NovelThumbnailProps) => {
       className="text-left flex flex-col min-h-[450px] w-full rounded-lg overflow-hidden border-[0.5px] border-[#E1E1E1]"
       key={novel.id}
     >
-      <img
-        src={`${MOCK_THUMBNAIL_BASE_PATH}/${novel.thumbnail_320}`}
-        className="w-full"
-      />
+      {novel.thumbnail_320 ? (
+        <img
+          src={`${MOCK_THUMBNAIL_BASE_PATH}/${novel.thumbnail_320}`}
+          className="w-full"
+        />
+      ) : (
+        <div className="w-full h-[183.2px] bg-neutral-200 flex justify-center items-center">
+          <AcademicCapIcon className="size-16 text-white" />
+        </div>
+      )}
 
       <div className="flex flex-col px-3 pt-3 pb-4 w-full justify-between grow">
         <div>
@@ -31,17 +36,6 @@ const NovelThumbnail = (novel: NovelThumbnailProps) => {
         </div>
 
         <div className="w-full flex flex-col gap-4">
-          <div className="flex items-center text-greyDark">
-            <UserIcon className="size-5 mr-1" />
-            <div className="text-greyDark">
-              <span className="text-sm">
-                {novel.translation_participant_number}명
-              </span>
-              &nbsp;
-              <span className="text-xs">참여</span>
-            </div>
-          </div>
-
           <div>
             <div className="text-grey text-xs mb-1">번역 진행도</div>
 
