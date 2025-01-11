@@ -1,3 +1,6 @@
+import { Button } from "@/components/ui/button.tsx";
+import React from "react";
+
 const ReviewPage = () => {
   return (
     <>
@@ -24,6 +27,15 @@ const ReviewPage = () => {
               “어느 누가 몇이나 나서든 ... ~ 하지만 그 사이를 노리고 재차
               떨어지는...
             </div>
+          </div>
+
+          <div className="w-full flex justify-center">
+            <Button className="w-[90px] m-4" variant="outline" type="button">
+              Reject
+            </Button>
+            <Button className="w-[90px] m-4" variant="outline" type="button">
+              Approve
+            </Button>
           </div>
         </main>
       </div>
