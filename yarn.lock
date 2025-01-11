@@ -1383,6 +1383,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-label@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "@radix-ui/react-label@npm:2.1.1"
+  dependencies:
+    "@radix-ui/react-primitive": 2.0.1
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: 40525096bf6fb5a1cfbf5c87aa46fd13d1329155fa62a42e35b4b55db5559d42081b97e77bf5f7ac45064fdae947ee6f78abb1f55b18821760a5712492243e6d
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-menu@npm:2.1.4":
   version: 2.1.4
   resolution: "@radix-ui/react-menu@npm:2.1.4"
@@ -6589,6 +6608,7 @@ __metadata:
     "@radix-ui/react-collapsible": ^1.1.2
     "@radix-ui/react-dialog": ^1.1.4
     "@radix-ui/react-dropdown-menu": ^2.1.4
+    "@radix-ui/react-label": ^2.1.1
     "@radix-ui/react-slot": ^1.1.1
     "@telegram-apps/bridge": ^1.9.2
     "@types/eslint": ^8.56.2
