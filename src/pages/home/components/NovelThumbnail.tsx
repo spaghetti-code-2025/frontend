@@ -35,11 +35,11 @@ const NovelThumbnail = (novel: NovelThumbnailProps) => {
     >
       {novel.thumbnail_320 ? (
         <img
-          src={`${MOCK_THUMBNAIL_BASE_PATH}/${novel.thumbnail_320}`}
-          className="w-full"
+          src={novel.thumbnail_320}
+          className="w-full h-[200px] object-cover"
         />
       ) : (
-        <div className="w-full h-[183.2px] bg-neutral-200 flex justify-center items-center">
+        <div className="w-full h-[200px] bg-neutral-200 flex justify-center items-center">
           <AcademicCapIcon className="size-16 text-white" />
         </div>
       )}
