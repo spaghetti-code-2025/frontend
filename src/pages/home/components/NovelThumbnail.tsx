@@ -1,6 +1,7 @@
 import { AcademicCapIcon, CurrencyDollarIcon } from "@heroicons/react/20/solid";
-import { MOCK_THUMBNAIL_BASE_PATH, Novel } from "src/mocks/novels/novels";
 import { useEffect, useState } from "react";
+import { MOCK_THUMBNAIL_BASE_PATH, Novel } from "src/mocks/novels/novels";
+
 import { getLockedAmount } from "@/api/nodit.ts";
 
 interface NovelThumbnailProps
@@ -75,15 +76,11 @@ const NovelThumbnail = (novel: NovelThumbnailProps) => {
               <div className="text-sm font-medium">남은 코인</div>
             </div>
 
-            <div className="text-sm danjo">
-              {lockedAmount !== null ? (
-                <>
-                  {lockedAmount}
-                  <span className="text-sm danjo">APT</span>
-                </>
-              ) : (
-                "- APT"
-              )}
+            <div className="text-lg font-bold">
+              <>
+                {lockedAmount ?? "-"}
+                <span className="text-sm font-normal">APT</span>
+              </>
             </div>
           </div>
         </div>
