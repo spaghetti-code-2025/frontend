@@ -6,7 +6,7 @@ interface TaskResponse {
   end: number;
   id: number;
   translated: string;
-  status: any;
+  status: "PENDING" | "IN_PROGRESS" | "DONE";
   trans_hash: string;
   participantAddress: string;
   novel_id: number;

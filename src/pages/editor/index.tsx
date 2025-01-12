@@ -1,11 +1,18 @@
 import { ArrowUturnLeftIcon, BookOpenIcon } from "@heroicons/react/20/solid";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { getAllNovels } from "@/api/novel";
-import { getAllTasks } from "@/api/task";
+import { getAllTasks, postTask } from "@/api/task";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import contentParser from "@/utils/content_parser";
 import sentenceParser from "@/utils/sentence_parser";
 
@@ -47,7 +54,70 @@ const EditorPage = () => {
     ? tasksData.filter((taskData) => taskData.novel_id === novelId)
     : undefined;
 
+  const thisEpisodesTasksData = thisNovelsTasksData
+    ? thisNovelsTasksData.filter(
+        (taskData) =>
+          thisNovelsData &&
+          taskData.end === thisNovelsData[0].separator[episodeNumber - 1],
+      )
+    : undefined;
+
+  const thisEpisodesTaskData =
+    thisEpisodesTasksData?.length === 1 ? thisEpisodesTasksData[0] : undefined;
+
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+
+  const [editStatus, setEditStatus] = useState<
+    "IN_PROGRESS" | "DONE" | "PENDING" | "OCCUPIED" | null
+  >(null);
+
+  useEffect(() => {
+    if (!thisEpisodesTaskData) return;
+
+    if (thisEpisodesTaskData.status === "IN_PROGRESS") {
+      const userWalletAddress = localStorage.getItem("wallet_address");
+      if (!userWalletAddress) return;
+
+      if (thisEpisodesTaskData?.participantAddress === userWalletAddress) {
+        setEditStatus("IN_PROGRESS");
+      } else {
+        setEditStatus("OCCUPIED");
+      }
+
+      return;
+    }
+
+    if (thisEpisodesTaskData.status === "PENDING") {
+      setEditStatus("PENDING");
+    }
+
+    if (thisEpisodesTaskData.status === "DONE") {
+      setEditStatus("DONE");
+    }
+  }, [thisEpisodesTaskData]);
+
+  const postTaskMutation = useMutation({
+    mutationFn: postTask,
+    onSuccess: () => {
+      setEditStatus("IN_PROGRESS");
+    },
+  });
+
+  const handlePostTask = () => {
+    if (!thisNovelsData) return;
+    const start =
+      episodeNumber === 1
+        ? 0
+        : thisNovelsData[0].separator[episodeNumber - 2] + 1;
+    const end = thisNovelsData[0].separator[episodeNumber - 1];
+
+    postTaskMutation.mutate({
+      novel_id: novelId,
+      start,
+      end,
+      length: end - start,
+    });
+  };
 
   return (
     <>
@@ -69,10 +139,37 @@ const EditorPage = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="outline">
-              <BookOpenIcon />
-              번역 가이드
-            </Button>
+            {editStatus ? (
+              <div className="flex items-center gap-3">
+                <div
+                  className={`size-3 rounded-full ${(editStatus === "PENDING" || editStatus === "OCCUPIED") && "bg-yellow"} ${editStatus === "DONE" && "bg-neutral-400"}`}
+                />
+
+                <div>
+                  {editStatus === "PENDING" && "검수 중"}
+                  {editStatus === "OCCUPIED" && "다른 이에 의해 번역 중"}
+                  {editStatus === "DONE" && "번역 완료됨"}
+                </div>
+              </div>
+            ) : (
+              <Button onClick={handlePostTask}>번역 시작</Button>
+            )}
+
+            <Dialog>
+              <DialogTrigger>
+                <Button variant="outline">
+                  <BookOpenIcon />
+                  번역 가이드
+                </Button>
+              </DialogTrigger>
+
+              <DialogContent>
+                <DialogHeader className="font-bold text-2xl">
+                  번역 가이드
+                </DialogHeader>
+                <DialogDescription>{thisNovelsData[0].notes}</DialogDescription>
+              </DialogContent>
+            </Dialog>
 
             <Link to="/">
               <Button variant="ghost">
@@ -117,12 +214,13 @@ const EditorPage = () => {
             ))}
         </div>
 
-        {/* <div className="h-[500px]" /> */}
-        <footer className="pt-4 pb-8 flex gap-4 w-full justify-center mt-10">
-          <button className="bg-green text-white font-semibold rounded-full px-20 py-4 text-xl">
-            완료
-          </button>
-        </footer>
+        {editStatus === "IN_PROGRESS" && (
+          <footer className="pt-4 pb-8 flex gap-4 w-full justify-center mt-10">
+            <button className="bg-green text-white font-semibold rounded-full px-20 py-4 text-xl">
+              완료
+            </button>
+          </footer>
+        )}
       </div>
     </>
   );
