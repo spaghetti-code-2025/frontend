@@ -1,3 +1,6 @@
+import { Button } from "@/components/ui/button.tsx";
+import React from "react";
+
 const ReviewPage = () => {
   return (
     <>
@@ -8,11 +11,6 @@ const ReviewPage = () => {
           <div className="p-4 border-[1px] border-neutral-200 w-full rounded-lg">
             <div className="flex w-full justify-between items-center">
               <div className="text-xl font-bold">무명 식객</div>
-
-              <div className="flex items-center gap-2">
-                <div className="size-3 rounded-full bg-yellow" />
-                <div className="text-sm text-grey">#23k2j3fhkj</div>
-              </div>
             </div>
 
             <div className="flex gap-2 my-1">
@@ -24,6 +22,15 @@ const ReviewPage = () => {
               “어느 누가 몇이나 나서든 ... ~ 하지만 그 사이를 노리고 재차
               떨어지는...
             </div>
+          </div>
+
+          <div className="w-full flex justify-center">
+            <Button className="w-[90px] m-4" variant="outline" type="button">
+              Reject
+            </Button>
+            <Button className="w-[90px] m-4" variant="outline" type="button">
+              Approve
+            </Button>
           </div>
         </main>
       </div>

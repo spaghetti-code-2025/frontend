@@ -54,7 +54,7 @@ const SubmitContent = () => {
           requestId,
           reviewerAccountId,
           contentHash,
-          totalPrice,
+          totalPrice * Math.pow(10, 8),
           contentLength,
         ],
       },
