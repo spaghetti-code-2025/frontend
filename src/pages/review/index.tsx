@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
 import { getAllNovels } from "@/api/novel";
-import { getAllTasks } from "@/api/task";
+import { getAllTasks, TaskResponse } from "@/api/task";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
@@ -17,7 +17,7 @@ const ReviewPage = () => {
   const { signAndSubmitTransaction, account, connected } = useWallet();
   const { toast } = useToast();
 
-  const handleAcceptTranslation = async () => {
+  const handleAcceptTranslation = async (task: TaskResponse) => {
     if (!connected || !account) {
       toast({
         variant: "destructive",
@@ -29,18 +29,17 @@ const ReviewPage = () => {
 
     // 더미 데이터
     const dummyData = {
-      requestId: "5",
-      startIdx: 0,
-      endIdx: 1,
-      translatedContentHash: "0x123456789abcdef",
-      translatorAccountId:
-        "0x88c6c92d91c4f34c739cdc0c2c4735be3f3d263c87877af3966d804ffb6a2590",
+      requestId: task.novel_id,
+      startIdx: task.start,
+      endIdx: task.end,
+      translatedContentHash: task.trans_hash,
+      translatorAccountId: task.participantAddress,
     };
 
     const payload: InputTransactionData = {
       data: {
         function:
-          "67a5c0efdea05102041bb5b2bb8d52f271742baa4b6f15aee1a1d048010890f1::translation_request::accept_translation_pr",
+          "590655b1d402206ee2c348d04535026f0cad98f52b1b270f3ac5f16cbf5176a0\n::translation_request::accept_translation_pr",
         typeArguments: [],
         functionArguments: [
           dummyData.requestId,
@@ -156,7 +155,9 @@ const ReviewPage = () => {
                         className="w-[90px]"
                         variant="outline"
                         type="button"
-                        onClick={handleAcceptTranslation}
+                        onClick={() => {
+                          handleAcceptTranslation(task);
+                        }}
                       >
                         Approve
                       </Button>

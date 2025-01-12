@@ -1,6 +1,6 @@
 import api from "./api";
 
-interface TaskResponse {
+export interface TaskResponse {
   length: number;
   start: number;
   end: number;

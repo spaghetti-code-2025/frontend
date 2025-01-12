@@ -48,7 +48,7 @@ const SubmitContent = () => {
     const payload: InputTransactionData = {
       data: {
         function:
-          "67a5c0efdea05102041bb5b2bb8d52f271742baa4b6f15aee1a1d048010890f1::translation_request::create_translation_request",
+          "590655b1d402206ee2c348d04535026f0cad98f52b1b270f3ac5f16cbf5176a0::translation_request::create_translation_request",
         typeArguments: [],
         functionArguments: [
           requestId,
