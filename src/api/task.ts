@@ -6,7 +6,7 @@ interface TaskResponse {
   end: number;
   id: number;
   translated: string;
-  status: any;
+  status: "PENDING" | "IN_PROGRESS" | "DONE";
   trans_hash: string;
   participantAddress: string;
   novel_id: number;
@@ -27,6 +27,27 @@ interface PostTaskRequest {
 
 export const postTask = async (requestData: PostTaskRequest) => {
   const response = await api.post<TaskResponse>("/task", requestData);
+
+  return response.data;
+};
+
+interface PostTranslationRequest {
+  id: number;
+  translated: string;
+}
+
+export const postTranslation = async (requestData: PostTranslationRequest) => {
+  const response = await api.post("/task/translated", requestData);
+
+  return response.data;
+};
+
+interface AssertReviewRequest {
+  id: number;
+}
+
+export const postAssertReview = async (requestData: AssertReviewRequest) => {
+  const response = await api.post("/task/review", requestData);
 
   return response.data;
 };

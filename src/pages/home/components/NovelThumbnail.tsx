@@ -1,5 +1,8 @@
 import { AcademicCapIcon, CurrencyDollarIcon } from "@heroicons/react/20/solid";
+import { useEffect, useState } from "react";
 import { MOCK_THUMBNAIL_BASE_PATH, Novel } from "src/mocks/novels/novels";
+
+import { getLockedAmount } from "@/api/nodit.ts";
 
 interface NovelThumbnailProps
   extends Pick<
@@ -13,6 +16,18 @@ interface NovelThumbnailProps
   > {}
 
 const NovelThumbnail = (novel: NovelThumbnailProps) => {
+  const [lockedAmount, setLockedAmount] = useState<string | null>(null);
+
+  useEffect(() => {
+    const updateLockedAmount = async () => {
+      const amount = await getLockedAmount(novel.id);
+      console.log(amount);
+      setLockedAmount(amount);
+    };
+
+    updateLockedAmount();
+  }, [novel.id]);
+
   return (
     <div
       className="text-left flex flex-col min-h-[450px] w-full rounded-lg overflow-hidden border-[0.5px] border-[#E1E1E1]"
@@ -58,12 +73,14 @@ const NovelThumbnail = (novel: NovelThumbnailProps) => {
           <div className="flex items-center w-full justify-between">
             <div className="flex items-center text-grey">
               <CurrencyDollarIcon className="size-5 mr-1" />
-              <div className="text-sm font-medium">100자당</div>
+              <div className="text-sm font-medium">남은 코인</div>
             </div>
 
-            <div className="text-lg danjo">
-              {novel.fee_per_100_chars}
-              <span className="text-sm danjo">원</span>
+            <div className="text-lg font-bold">
+              <>
+                {lockedAmount ?? "-"}
+                <span className="text-sm font-normal">APT</span>
+              </>
             </div>
           </div>
         </div>

@@ -8,6 +8,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
+import { Toaster } from "@/components/ui/toaster";
 import Layout from "./layout/Layout";
 import EditorPage from "./pages/editor";
 import HomePage from "./pages/home";
@@ -45,6 +46,7 @@ function App() {
       >
         <QueryClientProvider client={queryClient}>
           <RouterProvider router={router} />
+          <Toaster />
         </QueryClientProvider>
       </AptosWalletAdapterProvider>
     </>
