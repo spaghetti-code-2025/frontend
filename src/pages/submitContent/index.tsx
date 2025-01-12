@@ -235,7 +235,7 @@ const SubmitContent = () => {
                 />
               </div>
               <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="author">의뢰비</Label>
+                <Label htmlFor="author">의뢰비 (Aptos)</Label>
                 <Input
                   id="price"
                   name="price"

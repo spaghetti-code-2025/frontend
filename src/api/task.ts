@@ -51,3 +51,9 @@ export const postAssertReview = async (requestData: AssertReviewRequest) => {
 
   return response.data;
 };
+
+export const getAllPendingTasks = async () => {
+  const response = await api.get<TaskResponse>("/task/pending");
+
+  return response.data;
+};
