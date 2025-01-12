@@ -1,7 +1,66 @@
-import { Button } from "@/components/ui/button.tsx";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { InputTransactionData, useWallet } from "@aptos-labs/wallet-adapter-react";
 import React from "react";
 
 const ReviewPage = () => {
+  const { signAndSubmitTransaction, account, connected } = useWallet();
+  const { toast } = useToast();
+
+  const handleAcceptTranslation = async () => {
+    if (!connected || !account) {
+      toast({
+        variant: "destructive",
+        title: "지갑 연결 필요",
+        description: "지갑을 먼저 연결해주세요!",
+      });
+      return;
+    }
+
+    // 더미 데이터
+    const dummyData = {
+      requestId: "5",
+      startIdx: 0,
+      endIdx: 1,
+      translatedContentHash: "0x123456789abcdef",
+      translatorAccountId:
+        "0x88c6c92d91c4f34c739cdc0c2c4735be3f3d263c87877af3966d804ffb6a2590",
+    };
+
+    const payload: InputTransactionData = {
+      data: {
+        function: "67a5c0efdea05102041bb5b2bb8d52f271742baa4b6f15aee1a1d048010890f1::translation_request::accept_translation_pr",
+        typeArguments: [],
+        functionArguments: [
+          dummyData.requestId,
+          dummyData.startIdx,
+          dummyData.endIdx,
+          dummyData.translatedContentHash,
+          dummyData.translatorAccountId,
+        ],
+      },
+    };
+
+    try {
+      if (!signAndSubmitTransaction) {
+        throw new Error("Wallet is not connected");
+      }
+      const txnHash = await signAndSubmitTransaction(payload);
+      console.log("Transaction hash:", txnHash);
+      toast({
+        title: "승인 성공",
+        description: "번역이 성공적으로 승인되었습니다.",
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "승인 실패",
+        description: "번역 승인 중 오류가 발생했습니다.",
+      });
+    }
+  };
+
   return (
     <>
       <div className="w-full flex justify-center">
@@ -19,8 +78,8 @@ const ReviewPage = () => {
             </div>
 
             <div className="text-sm text-greyDark">
-              “어느 누가 몇이나 나서든 ... ~ 하지만 그 사이를 노리고 재차
-              떨어지는...
+              &quot;어느 누가 몇이나 나서든 ... ~ 하지만 그 사이를 노리고 재차
+              떨어지는...&quot;
             </div>
           </div>
 
@@ -28,7 +87,12 @@ const ReviewPage = () => {
             <Button className="w-[90px] m-4" variant="outline" type="button">
               Reject
             </Button>
-            <Button className="w-[90px] m-4" variant="outline" type="button">
+            <Button
+              className="w-[90px] m-4"
+              variant="outline"
+              type="button"
+              onClick={handleAcceptTranslation}
+            >
               Approve
             </Button>
           </div>

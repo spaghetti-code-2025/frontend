@@ -120,7 +120,7 @@ const SubmitContent = () => {
       content: contents.map((item) => item.content.trim()).join(""),
       separator,
       length: totalLength,
-      price: price,
+      price: price * Math.pow(10, 8),
     };
 
     try {
