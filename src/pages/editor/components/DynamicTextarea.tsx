@@ -23,6 +23,10 @@ const DynamicTextarea = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
+    setText(value || "");
+  }, [value]);
+
+  useEffect(() => {
     if (textareaRef.current) {
       // Reset height to recalculate based on content
       textareaRef.current.style.height = "auto";

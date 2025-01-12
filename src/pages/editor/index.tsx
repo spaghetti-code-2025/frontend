@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { getAllNovels } from "@/api/novel";
-import { getAllTasks, postTask } from "@/api/task";
+import {
+  getAllTasks,
+  postAssertReview,
+  postTask,
+  postTranslation,
+} from "@/api/task";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import contentParser from "@/utils/content_parser";
 import sentenceParser from "@/utils/sentence_parser";
+import translatedParser from "@/utils/translated_parser";
 
 import DynamicTextarea from "./components/DynamicTextarea";
 
@@ -81,8 +87,6 @@ const EditorPage = () => {
       } else {
         setEditStatus("OCCUPIED");
       }
-
-      return;
     }
 
     if (thisEpisodesTaskData.status === "PENDING") {
@@ -115,6 +119,59 @@ const EditorPage = () => {
       end,
       length: end - start,
     });
+  };
+
+  const [sentencesValues, setSentencesValues] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (thisEpisodesTaskData && thisEpisodesTaskData?.translated.length > 0) {
+      const parsedSentences = translatedParser(thisEpisodesTaskData.translated);
+      setSentencesValues(parsedSentences);
+    }
+  }, [thisEpisodesTaskData]);
+
+  const handleTextareaChange = (index: number, newValue: string) => {
+    setSentencesValues((prev) => {
+      const updated = [...prev];
+      updated[index] = newValue;
+      return updated;
+    });
+  };
+
+  const isFinalSubmissionValid =
+    thisEpisodesSentencesData &&
+    sentencesValues.length === thisEpisodesSentencesData.length &&
+    sentencesValues.every((sentence) => sentence && sentence.length > 0);
+
+  const postTranslationMutation = useMutation({
+    mutationFn: postTranslation,
+  });
+
+  const handleSubmitTranslation = async () => {
+    if (!thisEpisodesTaskData) return;
+
+    const sentences = sentencesValues
+      .map((sentence) => `<p>${sentence ?? ""}</p>`)
+      .join("");
+
+    postTranslationMutation.mutate({
+      id: thisEpisodesTaskData.id,
+      translated: sentences,
+    });
+  };
+
+  const assertReviewMuatation = useMutation({
+    mutationFn: postAssertReview,
+    onSuccess: () => {
+      setEditStatus("PENDING");
+    },
+  });
+
+  const handleAssertReview = async () => {
+    if (!isFinalSubmissionValid || !thisEpisodesTaskData) return;
+    await handleSubmitTranslation();
+
+    assertReviewMuatation.mutate({ id: thisEpisodesTaskData.id });
   };
 
   return (
@@ -205,6 +262,8 @@ const EditorPage = () => {
                 <div className="w-1/2 py-2 px-8 box-border">
                   <DynamicTextarea
                     placeholder={sentence}
+                    value={sentencesValues[index]}
+                    onChange={(value) => handleTextareaChange(index, value)} // Update state on change
                     onFocus={() => setFocusedIndex(index)} // Set focus index
                     onBlur={() => setFocusedIndex(null)} // Reset focus index
                     disabled={editStatus !== "IN_PROGRESS"}
@@ -216,8 +275,18 @@ const EditorPage = () => {
 
         {editStatus === "IN_PROGRESS" && (
           <footer className="pt-4 pb-8 flex gap-4 w-full justify-center mt-10">
-            <button className="bg-green text-white font-semibold rounded-full px-20 py-4 text-xl">
-              완료
+            <button
+              onClick={handleSubmitTranslation}
+              className="bg-green text-white font-semibold rounded-full px-20 py-4 text-xl"
+            >
+              초안 저장
+            </button>
+
+            <button
+              onClick={handleAssertReview}
+              className={`${isFinalSubmissionValid ? "bg-yellow text-white" : "bg-neutral-200 text-grey"} font-semibold rounded-full px-20 py-4 text-xl`}
+            >
+              검수 요청
             </button>
           </footer>
         )}
