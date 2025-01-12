@@ -7,6 +7,7 @@ interface DynamicTextareaProps {
   className?: string;
   onFocus?: () => void;
   onBlur?: () => void;
+  disabled?: boolean;
 }
 
 const DynamicTextarea = ({
@@ -16,6 +17,7 @@ const DynamicTextarea = ({
   className = "",
   onFocus,
   onBlur,
+  disabled,
 }: DynamicTextareaProps) => {
   const [text, setText] = useState(value);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -46,6 +48,7 @@ const DynamicTextarea = ({
       style={{ lineHeight: "1.5" }}
       onFocus={onFocus}
       onBlur={onBlur}
+      disabled={disabled}
     />
   );
 };

@@ -1,7 +1,10 @@
+import {
+  InputTransactionData,
+  useWallet,
+} from "@aptos-labs/wallet-adapter-react";
+
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { InputTransactionData, useWallet } from "@aptos-labs/wallet-adapter-react";
-import React from "react";
 
 const ReviewPage = () => {
   const { signAndSubmitTransaction, account, connected } = useWallet();
@@ -29,7 +32,8 @@ const ReviewPage = () => {
 
     const payload: InputTransactionData = {
       data: {
-        function: "67a5c0efdea05102041bb5b2bb8d52f271742baa4b6f15aee1a1d048010890f1::translation_request::accept_translation_pr",
+        function:
+          "67a5c0efdea05102041bb5b2bb8d52f271742baa4b6f15aee1a1d048010890f1::translation_request::accept_translation_pr",
         typeArguments: [],
         functionArguments: [
           dummyData.requestId,

@@ -12,8 +12,11 @@ import {
   WalletItem,
   WalletSortingOptions,
 } from "@aptos-labs/wallet-adapter-react";
+import { useMutation } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, ChevronDown, LogOut, User } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+
+import { login } from "@/api/user";
 
 import { Button } from "../ui/button";
 import {
@@ -34,25 +37,46 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useToast } from "../ui/use-toast";
 
 export function WalletSelector(walletSortingOptions: WalletSortingOptions) {
   const { account, connected, disconnect, wallet } = useWallet();
+
+  const { toast } = useToast();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const closeDialog = useCallback(() => setIsDialogOpen(false), []);
 
+  const loginMutation = useMutation({
+    mutationFn: login,
+    onSuccess: (data) => {
+      toast({
+        variant: "default",
+        title: "로그인되었습니다!",
+      });
+      localStorage.setItem("access_token", data.token);
+    },
+  });
+
   useEffect(() => {
     if (connected && account?.address) {
       localStorage.setItem("wallet_address", account.address);
+      const accessToken = localStorage.getItem("access_token");
+      if (!accessToken) {
+        loginMutation.mutate({ address: account.address });
+      }
     } else if (!connected) {
       localStorage.removeItem("wallet_address");
+      localStorage.removeItem("access_token");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connected, account?.address]);
 
   const handleDisconnect = useCallback(() => {
     disconnect();
     localStorage.removeItem("wallet_address");
+    localStorage.removeItem("access_token");
   }, [disconnect]);
 
   console.log(account);

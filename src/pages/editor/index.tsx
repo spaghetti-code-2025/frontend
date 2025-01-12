@@ -48,8 +48,6 @@ const EditorPage = () => {
     ? sentenceParser(thisNovelsEpisodeData.original)
     : undefined;
 
-  console.log(thisEpisodesSentencesData);
-
   const thisNovelsTasksData = tasksData
     ? tasksData.filter((taskData) => taskData.novel_id === novelId)
     : undefined;
@@ -142,13 +140,14 @@ const EditorPage = () => {
             {editStatus ? (
               <div className="flex items-center gap-3">
                 <div
-                  className={`size-3 rounded-full ${(editStatus === "PENDING" || editStatus === "OCCUPIED") && "bg-yellow"} ${editStatus === "DONE" && "bg-neutral-400"}`}
+                  className={`size-3 rounded-full ${(editStatus === "PENDING" || editStatus === "OCCUPIED") && "bg-yellow"} ${editStatus === "DONE" && "bg-neutral-400"} ${editStatus === "IN_PROGRESS" && "bg-green"}`}
                 />
 
-                <div>
+                <div className="text-greyDark font-semibold text-sm mr-3">
                   {editStatus === "PENDING" && "검수 중"}
                   {editStatus === "OCCUPIED" && "다른 이에 의해 번역 중"}
                   {editStatus === "DONE" && "번역 완료됨"}
+                  {editStatus === "IN_PROGRESS" && "당신이 작업 중"}
                 </div>
               </div>
             ) : (
@@ -208,6 +207,7 @@ const EditorPage = () => {
                     placeholder={sentence}
                     onFocus={() => setFocusedIndex(index)} // Set focus index
                     onBlur={() => setFocusedIndex(null)} // Reset focus index
+                    disabled={editStatus !== "IN_PROGRESS"}
                   />
                 </div>
               </div>
